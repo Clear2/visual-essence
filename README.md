@@ -10,8 +10,8 @@ LLM to produce a transcript-grounded personal-coach interpretation.
 
 ## First release
 
-- A responsive landing page inspired by the quiet, focused interaction style of
-  Sitor, with an original Visual Essence identity
+- A responsive landing page with a quiet, focused interaction style and an
+  original Visual Essence identity
 - Douyin URL validation for both direct URLs and full copied share text
 - Support for Douyin Selected links that carry a video in `modal_id`, such as
   `https://www.douyin.com/jingxuan?modal_id=...`

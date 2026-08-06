@@ -45,7 +45,7 @@ reflection questions, and capability-boundary notice. When
 never construct an interpretation from title or metadata. Playback URLs come
 from the typed backend contract and resolve against
 the configured API origin; the preview must not navigate to the platform page.
-`src/components/video-learning-workspace.tsx` owns the Sitor-aligned result
+`src/components/video-learning-workspace.tsx` owns the Visual Essence result
 workspace: left session navigation, the central conversation feed and composer,
 and the right roadmap/notes panel. Keep desktop collapse, mobile drawers, and
 message-level process disclosure behavior synchronized when changing this shell.

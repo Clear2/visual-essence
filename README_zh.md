@@ -8,7 +8,7 @@
 
 ## 第一版能力
 
-- 参考 Sitor 安静、聚焦的交互方式，并建立独立的 Visual Essence 视觉风格
+- 采用安静、聚焦的交互方式，并建立独立的 Visual Essence 视觉风格
 - 支持直接粘贴抖音 URL，也支持粘贴整段分享文案
 - 支持通过 `modal_id` 指定视频的抖音精选链接，例如
   `https://www.douyin.com/jingxuan?modal_id=...`
