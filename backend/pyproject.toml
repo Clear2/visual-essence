@@ -1,0 +1,37 @@
+[project]
+name = "visual-essence-backend"
+version = "0.1.0"
+description = "API for extracting structured content from public Douyin video links"
+requires-python = ">=3.12"
+dependencies = [
+    "douyin-downloader @ git+https://github.com/jiji262/douyin-downloader.git@0403bf7d0a081326c655248aa236d05cf070f52e",
+    "fastapi>=0.115.0",
+    "httpx>=0.28.0",
+    "langchain-openai>=1.2.1",
+    "pydantic>=2.10.0",
+    "pyyaml>=6.0.3",
+    "python-multipart>=0.0.20",
+    "uvicorn[standard]>=0.34.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.11.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+
+[tool.uv]
+index-url = "https://pypi.org/simple"
+package = false

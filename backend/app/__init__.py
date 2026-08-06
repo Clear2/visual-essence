@@ -1,0 +1,1 @@
+"""Visual Essence backend application."""

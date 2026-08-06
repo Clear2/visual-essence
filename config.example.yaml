@@ -1,0 +1,30 @@
+# Visual Essence model configuration uses a simple models[] registry.
+# Copy this file to config.yaml, keep secrets in environment variables, then
+# restart the backend.
+
+models:
+  - name: video-analysis
+    display_name: Video Analysis
+    use: langchain_openai:ChatOpenAI
+    model: gpt-4.1-mini
+    api_key: $OPENAI_API_KEY
+    # base_url: $OPENAI_BASE_URL
+    request_timeout: 180.0
+    max_retries: 2
+    max_tokens: 2048
+    temperature: 0.2
+
+video_analysis:
+  enabled: true
+  model_name: video-analysis
+  transcription_api_url: https://api.openai.com/v1/audio/transcriptions
+  transcription_api_key: $OPENAI_API_KEY
+  transcription_model: gpt-4o-mini-transcribe
+  transcription_provider: openai
+  # Local alternative (does not need transcription_api_key):
+  # transcription_provider: local_whisper
+  # whisper_cli_path: whisper-cli
+  # whisper_model_path: $WHISPER_MODEL_PATH
+  # whisper_language: zh
+  request_timeout_seconds: 180
+  max_video_bytes: 209715200

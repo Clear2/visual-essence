@@ -1,0 +1,38 @@
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+config.yaml
+
+# Frontend
+frontend/.next/
+frontend/.turbo/
+frontend/node_modules/
+frontend/out/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+frontend/*.tsbuildinfo
+
+# Backend
+backend/.venv/
+backend/.pytest_cache/
+backend/.ruff_cache/
+backend/.coverage
+backend/htmlcov/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.py[cod]
+
+# Product runtime data
+data/
+downloads/
+*.mp4
+*.m4a
+*.webm
