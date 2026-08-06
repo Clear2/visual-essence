@@ -7,6 +7,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Updated GitHub Actions to current Node.js 24-based releases.
+
 ## [0.1.0] - 2026-08-06
 
 ### Added
