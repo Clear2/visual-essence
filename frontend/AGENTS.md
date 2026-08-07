@@ -28,16 +28,20 @@ Use the App Router under `src/app/`. Put reusable UI in `src/components/`, domai
 logic and API clients in `src/core/`, shared hooks in `src/hooks/`, and generic
 utilities in `src/lib/`. `src/core/api/videos.ts` owns the typed backend contract;
 components must not parse raw API responses. `src/components/processing-trace.tsx`
-owns the native disclosure and activity timeline used for the user-facing “View
-thinking process” interaction. It renders dynamic observations, tools,
-decisions, warnings, results, elapsed time, and safe evidence from the backend.
+owns the native disclosure and continuous public narrative used for the
+user-facing “View thinking process” interaction. It concatenates only
+backend-reported `detail` fields in execution order; never synthesize connective
+claims from activity titles, kinds, timings, or arbitrary `data` fields.
 `src/components/streaming-reasoning-text.tsx` types the current public
-explanation as it changes. These are observable public reasoning summaries, not
-private hidden model reasoning. The homepage validates input and navigates to `src/app/result/`; the
+explanation from the first changed character instead of replaying the whole
+narrative. These are observable public reasoning summaries, not private hidden
+model reasoning. The homepage validates input and navigates to `src/app/result/`; the
 result route owns loading, error, extracted-content, and processing-trace states.
 `src/components/video-result.tsx` owns the user-facing “View personal-coach
-interpretation” action on the extracted video card. The action is not an
-external link: `src/components/video-learning-workspace.tsx` opens the in-page
+interpretation” action on the extracted video card. Render it only when both a
+transcript and `coach_interpretation` exist; metadata-only results show a
+non-interactive unavailable label. The action is not an external link:
+`src/components/video-learning-workspace.tsx` opens the in-page
 detail panel, while `src/components/video-coach-interpretation.tsx` renders its
 native inline video player, transcript-grounded LLM summary, key points,
 reflection questions, and capability-boundary notice. When
@@ -47,15 +51,19 @@ from the typed backend contract and resolve against
 the configured API origin; the preview must not navigate to the platform page.
 `src/components/video-learning-workspace.tsx` owns the Visual Essence result
 workspace: left session navigation, the central conversation feed and composer,
-and the right roadmap/notes panel. Keep desktop collapse, mobile drawers, and
+and the right content-context/notes panel. Keep desktop collapse, mobile drawers, and
 message-level process disclosure behavior synchronized when changing this shell.
 The homepage creates a server-side conversation, then navigates to
 `/result?id={conversationId}`; never encode the source URL in the result route.
 The result page immediately renders the conversation workspace and first reads
 `GET /api/conversations/{id}`. Restore a persisted video result directly when
 one exists; only a new conversation consumes
-`POST /api/conversations/{id}/extract/stream`. Show only backend-reported stages
-inside the assistant message and roadmap, without a fixed total-step count.
+`POST /api/conversations/{id}/extract/stream`. Show only the continuous
+backend-reported narrative inside the assistant message, without activity cards,
+elapsed-time evidence, repeated side-panel traces, or a fixed total-step count.
+The end of the narrative is only a terminal state. Label the workspace complete
+only when both transcript and `coach_interpretation` exist; metadata-only
+terminal results must say analysis is incomplete and expose the failure reason.
 Upsert streaming activities by `key` so a running event is replaced by its
 completed or warning state instead of appearing twice.
 Never add a separate intermediate loading page, simulate progress with a timer,

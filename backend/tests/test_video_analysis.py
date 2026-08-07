@@ -65,3 +65,8 @@ async def test_transcript_llm_analyzer_summarizes_the_transcribed_video_content(
         "key_point_count": 3,
         "question_count": 1,
     }
+    assert llm_events[-1].detail == (
+        "完整转写呈现的内容主线是：视频梳理北魏十一位皇帝，并以孝文帝改革为关键转折。"
+    )
+    assert "北魏" in llm_events[-1].detail
+    assert "生成了 3 个关键点" not in llm_events[-1].detail

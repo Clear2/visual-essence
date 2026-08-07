@@ -284,11 +284,8 @@ class TranscriptLlmVideoAnalyzer:
             on_progress,
             ProcessingTraceStep(
                 key="llm_interpretation",
-                title="LLM 内容解读完成",
-                detail=(
-                    f"生成了 {len(interpretation.key_points)} 个关键点和 "
-                    f"{len(interpretation.questions)} 个思考问题。"
-                ),
+                title="形成基于转写的内容理解",
+                detail=(f"完整转写呈现的内容主线是：{interpretation.summary}"),
                 kind=ProcessingStepKind.RESULT,
                 data={
                     "summary_excerpt": interpretation.summary[:160],

@@ -95,6 +95,8 @@ root `config.yaml -> models[]` shape documented in `config.example.yaml`. Video 
 disabled unless explicitly enabled in `video_analysis`. If transcription or the
 LLM fails, return the metadata result with an actionable warning and leave
 `coach_interpretation` empty; never create a title-based fallback.
+When analysis is disabled, emit the same explicit metadata-only boundary rather
+than silently ending after metadata extraction.
 
 Douyin links may identify a work through `/video/{id}` or a `modal_id` query
 parameter. Public share-page parsing is the primary extraction path. If that

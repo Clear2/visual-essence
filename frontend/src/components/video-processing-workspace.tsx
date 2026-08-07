@@ -14,7 +14,6 @@ import Link from "next/link";
 import React from "react";
 
 import { ExtractionProgress } from "@/components/extraction-progress";
-import { ActivityTimeline } from "@/components/processing-trace";
 import type { ProcessingTraceStep } from "@/core/api/videos";
 import { buildConversationResultHref } from "@/core/video-url";
 
@@ -59,12 +58,8 @@ export function VideoProcessingWorkspace({
                 <Route size={13} strokeWidth={1.8} />
               </span>
               <span className="workspace-session__copy">
-                <strong>{error ? "视频分析未完成" : "公开推理正在生成"}</strong>
-                <small>
-                  {steps.length > 0
-                    ? `已完成 ${steps.length} 个阶段`
-                    : "准备中"}
-                </small>
+                <strong>{error ? "视频分析未完成" : "正在理解这条视频"}</strong>
+                <small>{steps.length > 0 ? "内容持续更新中" : "准备中"}</small>
               </span>
             </Link>
           </section>
@@ -104,8 +99,8 @@ export function VideoProcessingWorkspace({
               {error
                 ? "已停止"
                 : steps.length > 0
-                  ? `已完成 ${steps.length} 个阶段`
-                  : "正在准备"}
+                  ? "正在形成内容理解"
+                  : "正在等待处理记录"}
             </span>
             <span className="workspace-public-badge">对话</span>
           </div>
@@ -150,19 +145,23 @@ export function VideoProcessingWorkspace({
         </form>
       </section>
 
-      <aside className="workspace-right" aria-label="处理路线">
+      <aside className="workspace-right" aria-label="理解状态">
         <div className="workspace-right__title-row">
-          <h2>实时活动记录</h2>
+          <h2>理解状态</h2>
         </div>
         <div className="workspace-roadmap">
-          <div className="workspace-roadmap__progress">
-            <span>实时处理轨迹 · {steps.length} 个阶段</span>
+          <div className="workspace-understanding-state">
+            <strong>{error ? "内容理解已停止" : "正在形成内容脉络"}</strong>
+            <p>
+              {error
+                ? "已保留停止前取得的真实处理记录。"
+                : "中心对话只会续写后端已经确认的处理结果。"}
+            </p>
           </div>
-          {steps.length > 0 && <ActivityTimeline steps={steps} />}
           {!error && (
             <p className="workspace-roadmap__live">
               <CircleDashed className="spin" size={12} strokeWidth={1.8} />
-              等待下一条真实活动
+              等待下一条可验证内容
             </p>
           )}
         </div>

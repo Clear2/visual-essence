@@ -32,10 +32,13 @@ describe("ExtractionProgress", () => {
       />,
     );
 
-    expect(html).toContain("公开推理正在生成");
-    expect(html).toContain("查询公开视频详情");
-    expect(html).toContain("公开页面信息不足");
-    expect(html).toContain("实际工具结果与公开决策摘要");
+    expect(html).toContain("正在理解这条视频");
+    expect(html).toContain(
+      "公开分享页没有找到完整作品状态，不能据此继续分析。",
+    );
+    expect(html).toContain("正在读取视频 7420000000000000000 的公开详情数据。");
+    expect(html).not.toContain("查询公开视频详情");
+    expect(html).not.toContain("2 个阶段");
     expect(html).not.toContain("正在调用 LLM 生成私教解读");
   });
 });
@@ -51,12 +54,13 @@ describe("VideoProcessingWorkspace", () => {
     );
 
     expect(html).toContain('aria-label="视频处理工作台"');
-    expect(html).toContain("公开推理正在生成");
+    expect(html).toContain("正在理解这条视频");
     expect(html).toContain("/result?id=0198c7a0-6f66-7c75-a318-acde48001122");
     expect(html).not.toContain("EXTRACTION / RESULT");
     expect(html).not.toContain("result?url=");
     expect(html).not.toContain("查看私教解读");
-    expect(html).toContain("实时处理轨迹 · 0 个阶段");
+    expect(html).toContain("正在形成内容脉络");
+    expect(html).not.toContain("实时处理轨迹");
     expect(html).not.toContain("0/8");
     expect(html).not.toContain("/ 8");
   });

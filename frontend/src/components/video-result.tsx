@@ -6,7 +6,7 @@ import type { VideoContent } from "@/core/api/videos";
 
 type VideoResultProps = {
   video: VideoContent;
-  onOpenInterpretation: () => void;
+  onOpenInterpretation?: () => void;
   showProcessingTrace?: boolean;
 };
 
@@ -15,6 +15,10 @@ export function VideoResult({
   onOpenInterpretation,
   showProcessingTrace = true,
 }: VideoResultProps) {
+  const hasInterpretation = Boolean(
+    video.transcript && video.coach_interpretation,
+  );
+
   return (
     <article className="video-result" aria-label="视频提取结果">
       <div
@@ -36,8 +40,11 @@ export function VideoResult({
         <span>DOUYIN</span>
       </div>
       <div className="video-result__body">
-        <div className="video-result__meta">
-          <span>提取完成</span>
+        <div
+          className="video-result__meta"
+          data-status={hasInterpretation ? "complete" : "incomplete"}
+        >
+          <span>{hasInterpretation ? "分析完成" : "分析未完成"}</span>
           {video.duration_seconds && (
             <span>{Math.round(video.duration_seconds)} 秒</span>
           )}
@@ -46,18 +53,27 @@ export function VideoResult({
         <p>{video.description || "该视频没有提供额外描述。"}</p>
         <div className="video-result__footer">
           <span>{video.author.name || "未知作者"}</span>
-          <button
-            type="button"
-            className="video-result__interpretation-trigger"
-            onClick={onOpenInterpretation}
-          >
-            查看私教解读
-            <ArrowRight size={14} strokeWidth={1.7} />
-          </button>
+          {hasInterpretation && onOpenInterpretation ? (
+            <button
+              type="button"
+              className="video-result__interpretation-trigger"
+              onClick={onOpenInterpretation}
+            >
+              查看私教解读
+              <ArrowRight size={14} strokeWidth={1.7} />
+            </button>
+          ) : (
+            <span className="video-result__interpretation-unavailable">
+              暂无私教解读
+            </span>
+          )}
         </div>
       </div>
       {showProcessingTrace && (
-        <ProcessingTrace steps={video.processing_trace} />
+        <ProcessingTrace
+          steps={video.processing_trace}
+          label={hasInterpretation ? "查看思考过程" : "查看未完成原因"}
+        />
       )}
     </article>
   );

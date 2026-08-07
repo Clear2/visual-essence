@@ -389,7 +389,20 @@ class VideoExtractionModule:
         )
         if content.video_id and parsed.playback_source_url:
             self._playback_sources[content.video_id] = parsed.playback_source_url
-        if self._video_analyzer and content.video_id and parsed.playback_source_url:
+        if self._video_analyzer is None:
+            analysis_warning = "视频内容解读未启用：请配置语音转写与 LLM 模型后重新解析。"
+            await report(
+                ProcessingTraceStep(
+                    key="analysis_unavailable",
+                    title="本次没有启动视频内容解读",
+                    detail=("本次只整理了公开视频信息，因为后端尚未启用语音转写与 LLM 内容分析。"),
+                    kind=ProcessingStepKind.WARNING,
+                    status=ProcessingStepStatus.WARNING,
+                    data={"reason": "analysis_disabled"},
+                )
+            )
+            content = content.model_copy(update={"warnings": [*content.warnings, analysis_warning]})
+        elif content.video_id and parsed.playback_source_url:
             try:
                 await report(
                     ProcessingTraceStep(

@@ -24,7 +24,7 @@ LLM to produce a transcript-grounded personal-coach interpretation.
 - A persisted conversation is created before navigation, so result URLs contain
   only an opaque conversation ID (`/result?id=...`) and never the Douyin URL
 - The `/result` route opens the three-column conversation workspace immediately;
-  the assistant message and right roadmap update live until the coach
+  the assistant message and right content context update live until the coach
   interpretation becomes available
 - After analysis, the composer supports persistent follow-up questions. Answers
   use the saved transcript and recent turns as context, and explicitly decline
@@ -32,12 +32,17 @@ LLM to produce a transcript-grounded personal-coach interpretation.
   or refreshing a completed conversation restores the saved video and turns
   directly instead of starting extraction again
 - A fixed conversation composer, collapsible desktop navigation, and mobile
-  drawers for the session list and processing roadmap
-- A live public-reasoning log streams actual observations, tool activity,
-  strategy changes, warnings, and results. Current explanations type in as the
-  work proceeds and include safe evidence such as elapsed time, media byte
-  count, transcript length, and LLM result counts; no fixed step total or
-  private hidden reasoning is presented
+  drawers for the session list and content context
+- A single public-reasoning narrative streams only backend-reported activity in
+  execution order. Running activity is replaced in place when it completes,
+  the finished interpretation adds a transcript-grounded content thesis, and
+  the UI never invents connective claims from event labels or arbitrary data.
+  Raw step counts, timings, pipeline cards, and private hidden reasoning are not
+  presented as part of the conversation
+- Reaching the end of that narrative is a terminal state, not automatically a
+  success state. Only a response with both transcript-grounded analysis fields
+  is labeled complete; metadata-only termination is labeled “analysis
+  incomplete” and exposes its reason instead of a coach interpretation
 - A “View personal-coach interpretation” action that opens an in-page side
   panel with direct video playback, an LLM summary, key points, and reflection
   questions grounded in the speech transcript
@@ -45,7 +50,9 @@ LLM to produce a transcript-grounded personal-coach interpretation.
   a local `whisper-cli`, then a one-shot LangChain model call using the
   documented `models[]` configuration shape
 - Explicit degradation to metadata-only output when transcription or the LLM
-  fails; the title is never substituted for the actual video content
+  is disabled or fails; the result explains why no interpretation exists, does
+  not offer an empty interpretation action, and never substitutes the title for
+  actual video content
 - A guarded backend playback proxy that supports browser range requests without
   exposing signed Douyin CDN URLs to the frontend; its initial source must be an
   allowlisted Douyin CDN, and every HTTPS CDN redirect is rechecked against

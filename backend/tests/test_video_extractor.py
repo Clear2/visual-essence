@@ -343,11 +343,13 @@ async def test_extract_resolves_short_link_and_normalizes_metadata() -> None:
         "share_page_fetch",
         "metadata_inspected",
         "result_ready",
+        "analysis_unavailable",
     ]
-    assert all(step.status == "complete" for step in result.processing_trace)
-    assert result.processing_trace[-1].detail == (
-        "标题、作者、封面、时长和本地播放入口已经归一化。"
-    )
+    result_ready = next(step for step in result.processing_trace if step.key == "result_ready")
+    assert result_ready.detail == ("标题、作者、封面、时长和本地播放入口已经归一化。")
+    assert result.processing_trace[-1].status == "warning"
+    assert result.processing_trace[-1].data == {"reason": "analysis_disabled"}
+    assert result.warnings[-1] == ("视频内容解读未启用：请配置语音转写与 LLM 模型后重新解析。")
 
 
 @pytest.mark.asyncio
@@ -384,8 +386,10 @@ async def test_extract_streams_running_and_completed_public_activity() -> None:
         "share_page_fetch",
         "metadata_inspected",
         "result_ready",
+        "analysis_unavailable",
     ]
-    assert all(step.status == "complete" for step in result.processing_trace)
+    assert all(step.status == "complete" for step in result.processing_trace[:-1])
+    assert result.processing_trace[-1].status == "warning"
     assert len({step.key for step in result.processing_trace}) == len(result.processing_trace)
     assert all(step.elapsed_ms >= 0 for step in reported_steps)
 

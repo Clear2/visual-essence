@@ -29,10 +29,7 @@ import Link from "next/link";
 import React from "react";
 import { useEffect, useState } from "react";
 
-import {
-  ActivityTimeline,
-  ProcessingTrace,
-} from "@/components/processing-trace";
+import { ProcessingTrace } from "@/components/processing-trace";
 import { VideoCoachInterpretation } from "@/components/video-coach-interpretation";
 import { VideoResult } from "@/components/video-result";
 import {
@@ -49,7 +46,7 @@ type VideoLearningWorkspaceProps = {
   video: VideoContent;
 };
 
-type DetailTab = "roadmap" | "notes";
+type DetailTab = "context" | "notes";
 
 function formatDuration(duration: number | null) {
   if (!duration) {
@@ -63,10 +60,13 @@ export function VideoLearningWorkspace({
   conversationId,
   video,
 }: VideoLearningWorkspaceProps) {
+  const hasCoachInterpretation = Boolean(
+    video.transcript && video.coach_interpretation,
+  );
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailTab, setDetailTab] = useState<DetailTab>("roadmap");
+  const [detailTab, setDetailTab] = useState<DetailTab>("context");
   const [coachOpen, setCoachOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
@@ -74,8 +74,6 @@ export function VideoLearningWorkspace({
   const [question, setQuestion] = useState("");
   const [sending, setSending] = useState(false);
   const [chatError, setChatError] = useState("");
-  const completedSteps = video.processing_trace.length;
-
   useEffect(() => {
     const controller = new AbortController();
     getVideoConversation(conversationId, { signal: controller.signal })
@@ -90,6 +88,9 @@ export function VideoLearningWorkspace({
   }
 
   function openCoachInterpretation() {
+    if (!hasCoachInterpretation) {
+      return;
+    }
     setCoachOpen(true);
     setDetailOpen(true);
   }
@@ -120,7 +121,7 @@ export function VideoLearningWorkspace({
   async function submitQuestion(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const content = question.trim();
-    if (!content || sending) {
+    if (!content || sending || !video.transcript) {
       return;
     }
 
@@ -200,7 +201,7 @@ export function VideoLearningWorkspace({
         <div className="workspace-session-scroll">
           <section className="workspace-session-group">
             <div className="workspace-session-group__title">
-              <span>处理中</span>
+              <span>{hasCoachInterpretation ? "已完成" : "未完成"}</span>
               <small>1</small>
             </div>
             <Link
@@ -213,7 +214,9 @@ export function VideoLearningWorkspace({
               </span>
               <span className="workspace-session__copy">
                 <strong>{video.title}</strong>
-                <small>已完成 {completedSteps} 个阶段</small>
+                <small>
+                  {hasCoachInterpretation ? "内容已解读" : "仅公开信息"}
+                </small>
               </span>
             </Link>
           </section>
@@ -271,7 +274,9 @@ export function VideoLearningWorkspace({
           </button>
           <h1>{video.title}</h1>
           <div className="workspace-topbar__actions">
-            <span>已完成 {completedSteps} 个阶段</span>
+            <span>
+              {hasCoachInterpretation ? "视频分析完成" : "视频分析未完成"}
+            </span>
             <span className="workspace-public-badge">公开</span>
             <button type="button" aria-label="设置">
               <Settings size={16} strokeWidth={1.7} />
@@ -286,11 +291,11 @@ export function VideoLearningWorkspace({
           <button
             type="button"
             className="workspace-mobile-roadmap"
-            aria-label="打开学习路线"
+            aria-label="打开内容脉络"
             onClick={openRoadmap}
           >
             <Route size={17} strokeWidth={1.7} />
-            <span>学习路线</span>
+            <span>内容脉络</span>
           </button>
         </header>
 
@@ -301,22 +306,29 @@ export function VideoLearningWorkspace({
           </article>
 
           <article className="workspace-assistant-message">
-            <ProcessingTrace steps={video.processing_trace} />
+            <ProcessingTrace
+              steps={video.processing_trace}
+              label={hasCoachInterpretation ? "查看思考过程" : "查看未完成原因"}
+            />
 
             <p className="workspace-assistant-message__intro">
-              {video.status === "analyzed"
+              {hasCoachInterpretation
                 ? "视频分析已完成——已经取得语音转写，并由 LLM 生成结构化私教解读。"
-                : "视频公开信息已整理完成，但本次没有完成语音转写与 LLM 解读。"}
+                : "处理已经结束，但视频内容分析未完成；本次只保留已验证的公开信息。"}
             </p>
 
             <VideoResult
               video={video}
               showProcessingTrace={false}
-              onOpenInterpretation={openCoachInterpretation}
+              onOpenInterpretation={
+                hasCoachInterpretation ? openCoachInterpretation : undefined
+              }
             />
 
             <section className="workspace-digest">
-              <h2>视频内容概要</h2>
+              <h2>
+                {hasCoachInterpretation ? "视频内容概要" : "公开视频简介"}
+              </h2>
               <p>{video.description || "该视频没有提供额外描述。"}</p>
               <dl>
                 <div>
@@ -404,14 +416,18 @@ export function VideoLearningWorkspace({
               type="text"
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
-              placeholder="就这条视频继续提问…"
+              placeholder={
+                video.transcript
+                  ? "就这条视频继续提问…"
+                  : "取得语音转写后才能继续提问"
+              }
               aria-label="继续对话"
-              disabled={sending}
+              disabled={sending || !video.transcript}
             />
             <button
               type="submit"
               aria-label="发送"
-              disabled={sending || !question.trim()}
+              disabled={sending || !video.transcript || !question.trim()}
             >
               {sending ? (
                 <LoaderCircle className="spin" size={17} strokeWidth={1.7} />
@@ -443,13 +459,13 @@ export function VideoLearningWorkspace({
             ? "workspace-detail-scrim workspace-detail-scrim--open"
             : "workspace-detail-scrim"
         }
-        aria-label={coachOpen ? "关闭私教解读" : "关闭学习路线"}
+        aria-label={coachOpen ? "关闭私教解读" : "关闭内容脉络"}
         onClick={closeDetailPanel}
       />
 
       <aside
         className="workspace-right"
-        aria-label={coachOpen ? "私教解读" : "处理路线"}
+        aria-label={coachOpen ? "私教解读" : "内容脉络"}
         data-mobile-open={detailOpen}
         data-view={coachOpen ? "coach" : "learning"}
       >
@@ -476,7 +492,7 @@ export function VideoLearningWorkspace({
               <h2>{video.title}</h2>
               <button
                 type="button"
-                aria-label="关闭学习路线"
+                aria-label="关闭内容脉络"
                 onClick={closeDetailPanel}
               >
                 <ChevronLeft size={16} strokeWidth={1.7} />
@@ -491,10 +507,10 @@ export function VideoLearningWorkspace({
               <button
                 type="button"
                 role="tab"
-                aria-selected={detailTab === "roadmap"}
-                onClick={() => setDetailTab("roadmap")}
+                aria-selected={detailTab === "context"}
+                onClick={() => setDetailTab("context")}
               >
-                学习路线
+                内容脉络
               </button>
               <button
                 type="button"
@@ -506,15 +522,15 @@ export function VideoLearningWorkspace({
               </button>
             </div>
 
-            {detailTab === "roadmap" ? (
+            {detailTab === "context" ? (
               <div className="workspace-roadmap">
-                <div className="workspace-roadmap__progress">
-                  <span>共记录 {completedSteps} 个处理阶段</span>
-                  <span className="workspace-roadmap__bar">
-                    <span />
-                  </span>
+                <div className="workspace-context-summary">
+                  <span>基于当前可验证内容</span>
+                  <p>
+                    {video.coach_interpretation?.summary ??
+                      "本次没有取得可验证的完整转写，因此不从标题或描述推断视频内容。"}
+                  </p>
                 </div>
-                <ActivityTimeline steps={video.processing_trace} />
               </div>
             ) : (
               <div className="workspace-notes" role="tabpanel">
